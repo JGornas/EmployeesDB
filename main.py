@@ -55,8 +55,11 @@ db_interface.add_object(Department(name="Warehouse", manager_id=1, location_id=2
 
 emp1 = db_interface.read_object(Employee, 1)
 print(emp1)
+
 db_interface.delete_object(Employee, 2)
+
 db_interface.update_object(Employee, 1, "first_name", "Kuba")
+
 emp1 = db_interface.read_object(Employee, 1)
 print(emp1)
 
