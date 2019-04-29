@@ -14,7 +14,7 @@ class Job(Base):
     max_salary = Column(Integer)
 
     def __repr__(self):
-        return f"{self.id} : {self.title}"
+        return f"{self.id}. {self.title}."
 
 
 class Country(Base):
@@ -22,6 +22,9 @@ class Country(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(15))
+
+    def __repr__(self):
+        return f"{self.id}. {self.name}."
 
 
 class Location(Base):
@@ -31,13 +34,22 @@ class Location(Base):
     street = Column(String(20))
     postal_code = Column(String(20))
     city = Column(String(20))
-    country_id = Column(Integer, ForeignKey('countries.id'))
+    country_name = Column(Integer, ForeignKey('countries.name'))
+
+    def __repr__(self):
+        return f"{self.id}. {self.street}. {self.postal_code}. {self.city}. {self.country_name}."
 
 
 class Department(Base):
     __tablename__ = "departments"
 
     id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+    manager_id = Column(Integer, ForeignKey('employees.id'))
+    location_id = Column(Integer, ForeignKey('locations.id'))
+
+    def __repr__(self):
+        return f"{self.id}. {self.name}. {self.manager_id}. {self.location_id}. "
 
 
 class Employee(Base):
@@ -49,16 +61,22 @@ class Employee(Base):
     email = Column(String(25))
     phone_number = Column(String(20))
     hire_date = Column(String(20))
-    job_id = Column(Integer, ForeignKey('employees.id'))
+    job_id = Column(Integer, ForeignKey('jobs.id'))
     salary = Column(Integer)
+    manager_id = Column(Integer, ForeignKey('employees.id'), nullable=True)
+    department_id = Column(Integer, ForeignKey('departments.id'))
+
+    def __repr__(self):
+        return f"{self.id}. {self.first_name}. {self.last_name}. {self.email}. {self.phone_number}. "\
+            f"Hire date: {self.hire_date}. Job id: {self.job_id}. Salary: {self.salary}. "\
+            f"Manager id: {self.manager_id}. Department id: {self.department_id}. "
 
 
-class JobHistory:
+class JobHistory(Base):
     __tablename__ = "jobs_history"
 
     id = Column(Integer, primary_key=True)
-
-
-
-
-
+    employee_id = Column(String(25))
+    start_date = Column(String(25))
+    end_date = Column(String(25))
+    department_id = Column(Integer, ForeignKey('departments.id'))
