@@ -1,6 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -49,7 +48,7 @@ class Department(Base):
     location_id = Column(Integer, ForeignKey('locations.id'))
 
     def __repr__(self):
-        return f"{self.id}. {self.name}. {self.manager_id}. {self.location_id}. "
+        return f"{self.id}. {self.name}. Manager id: {self.manager_id}. Location id: {self.location_id}. "
 
 
 class Employee(Base):
