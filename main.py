@@ -37,9 +37,9 @@ class Interface:
 
     def read_object(self, table, object_id):
         session = self.Session()
-        query = session.query(table).filter_by(id=object_id).all()
+        query = session.query(table).filter_by(id=object_id).one()
         session.close()
-        return query
+        return str(query)
 
     def update_object(self, table, object_id, column, new_value):
         session = self.Session()
@@ -58,6 +58,7 @@ class Interface:
         try:
             query = session.query(table).filter_by(id=object_id)
             query.delete()
+            session.commit()
         except:
             session.rollback()
             raise
@@ -66,7 +67,7 @@ class Interface:
         return query
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # dummy data
     db = Interface("employees.db")
 
     db.add_object(Country(name="Poland"))
@@ -82,16 +83,3 @@ if __name__ == "__main__":
                            job_id=2, manager_id= 1, salary=1500, department_id=2))
     db.add_object(Department(name="Office", manager_id=1, location_id=1))
     db.add_object(Department(name="Warehouse", manager_id=1, location_id=2))
-
-    emp1 = db.read_object(Employee, 1)
-    print(emp1)
-
-    db.delete_object(Employee, 2)
-
-    db.update_object(Employee, 1, "first_name", "Kuba")
-
-    emp1 = db.read_object(Employee, 1)
-    print(emp1)
-
-    emp2 = db.read_object(Employee, 2)
-    print(emp2)
