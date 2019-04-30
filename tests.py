@@ -2,6 +2,7 @@ import unittest
 import sqlalchemy
 from main import Interface
 from models import Job, Employee, Country, Location, Department, JobHistory
+from sqlalchemy.orm.exc import NoResultFound
 
 
 class TestApp(unittest.TestCase):
@@ -41,5 +42,8 @@ class TestApp(unittest.TestCase):
 
     def test_delete_by_id(self):
         self.db.delete_object(Employee, 2)
-        with self.assertRaises(sqlalchemy.orm.exc.NoResultFound):
+        self.db.delete_object(Country, 1)
+        with self.assertRaises(NoResultFound):
             self.db.read_object(Employee, 2)
+        with self.assertRaises(NoResultFound):
+            self.db.read_object(Country, 1)
