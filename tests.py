@@ -1,15 +1,13 @@
 import unittest
-import sqlalchemy
 from main import Interface
 from models import Job, Employee, Country, Location, Department, JobHistory
-from sqlalchemy.orm.exc import NoResultFound
 
 
 class TestApp(unittest.TestCase):
 
     @classmethod  # runs once at start
     def setUpClass(cls):
-        cls.db = Interface("employees.db")
+        cls.db = Interface(memory_db=True)
         cls.db.add_object(Country(name="Poland"))
         cls.db.add_object(Job(title="Manager", min_salary=1500, max_salary=2000))
         cls.db.add_object(Job(title="Driver", min_salary=1000, max_salary=1700))
@@ -23,6 +21,8 @@ class TestApp(unittest.TestCase):
                                    job_id=2, manager_id=1, salary=1500, department_id=2))
         cls.db.add_object(Department(name="Office", manager_id=1, location_id=1))
         cls.db.add_object(Department(name="Warehouse", manager_id=1, location_id=2))
+        cls.db.read_object(Country, 1)
+
 
     def test_read_by_id(self):
         emp1 = self.db.read_object(Employee, 1)
@@ -36,14 +36,13 @@ class TestApp(unittest.TestCase):
         self.assertEqual(country1, "1. Poland.")
 
     def test_update_by_id(self):
+        self.db.add_object(Country(name="Poland"))
         self.db.update_object(Country, 1, "name", "England")
         country = self.db.read_object(Country, 1)
         self.assertEqual(country, "1. England.")
 
     def test_delete_by_id(self):
-        self.db.delete_object(Employee, 2)
-        self.db.delete_object(Country, 1)
-        with self.assertRaises(NoResultFound):
-            self.db.read_object(Employee, 2)
-        with self.assertRaises(NoResultFound):
-            self.db.read_object(Country, 1)
+        self.db2 = Interface(memory_db=True)
+        self.db2.add_object(Country(name="Poland"))
+        country = self.db2.delete_object(Country, 1)
+        self.assertEqual(country, None)
