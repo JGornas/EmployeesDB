@@ -8,24 +8,28 @@ import sys
 
 class Interface:
     def __init__(self, file_db="", new_db=True, memory_db=False):
+        if new_db:
+            try:
+                os.remove(f"{file_db}")
+            except FileNotFoundError:
+                print("Db file not found.")
         if memory_db:
             self.engine = create_engine("sqlite:///:memory:", echo=False)
             print("SQLite::memory: database initiated.")
         else:
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
             print(f"SQLite::{file_db}: database initiated.")
-        if new_db:
-            try:
-                os.remove(f"{file_db}")
-            except FileNotFoundError:
-                print("Db file not found.")
+
+        self.tables = [Job, Employee, Country, Location, Department, JobHistory]
         try:
-            for table in [Job, Employee, Country, Location, Department, JobHistory]:
+            for table in self.tables:
                 table.__table__.create(self.engine)
         except OperationalError:
             print("Tables loaded.")
         self.Session = sessionmaker(bind=self.engine)
-        self.dict = {"Country": ["name"], "Job": ["title", "min_salary", "max_salary"]}
+        self.attributes = {"Country": ["name"], "Job": ["title"],
+                           "Employee": ["last_name", "email", "phone_number"],
+                           "Department": ["name"], "Location": ["Postal_code"]}
 
     def add_object(self, table):
         session = self.Session()
@@ -41,9 +45,14 @@ class Interface:
 
     def read_object(self, table, kwargs):
         session = self.Session()
-        query = session.query(table).filter_by(**kwargs).first()
-        session.close()
-        return str(query)
+        try:
+            query = session.query(table).filter_by(**kwargs).first()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+            return str(query)
 
     def update_object(self, table, object_id, column, new_value):
         session = self.Session()
@@ -83,25 +92,9 @@ class Interface:
 
     def get_attributes(self, table):
         attributes = ["id"]
-        for key in self.dict[table]:
+        for key in self.attributes[table]:
             attributes.append(key)
         return attributes
-
-    def read(self):
-        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
-                  "Department": Department, "JobHistory": JobHistory}
-        table = input("Enter table name.\n")
-        attributes = self.get_attributes(table)
-        print(f"Available filters: {[a for a in attributes]}")
-        switch = input("Filter by? (only id works so far)\n")
-        if switch is "name":
-            object_name = input("Enter record name:\n")
-            query = self.read_object(table=models[table], object_id=object_name)
-        else:
-            object_id = input("Enter id:\n")
-            query = self.read_object(table=models[table], object_id=object_id)
-        print(query)
-        return query
 
     def add(self):
         table = input("Enter table name.\n")
@@ -110,14 +103,17 @@ class Interface:
         func = models[table]
         self.add_object(func(user_input))
 
-    def read2(self):
+    def read(self):
+        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
+                  "Department": Department, "JobHistory": JobHistory}
         print("List of tables:")
+        for table in models:
+            print(f"{table}", end=" "
+                  "\n")
         table = input("Enter table name:\n")
         attributes = self.get_attributes(table)
         print(f"Available filters: {[a for a in attributes]}")
         data = input("Enter data: FILTER_TYPE FILTER, eg. 'id 1', 'name Poland'\n")
-        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
-                  "Department": Department, "JobHistory": JobHistory}
         try:
             filter_type, filter_ = data.split(" ")
             table = models[table]
@@ -129,14 +125,10 @@ class Interface:
             print("Invalid data format!")
 
     def update(self):
-        table = input("Enter table name.\n")
-        object_id = input("Enter record id.\n")
-        self.read_object(table=table, object_id=object_id)
+        pass
 
     def delete(self):
-        table = input("Enter table name.\n")
-        object_id = input("Enter record id.\n")
-        self.read_object(table=table, object_id=object_id)
+        pass
 
     def exit(self):
         sys.exit(0)
@@ -144,7 +136,7 @@ class Interface:
     def ui(self):
         print("Enter 'help' for a list of commands.")
         functions = {"help": self.help, "exit": self.exit,
-                     "add": self.add, "read": self.read, "read2": self.read2, "update": self.update, "delete": self.delete}
+                     "add": self.add, "read": self.read, "update": self.update, "delete": self.delete}
         while True:
             try:
                 user_data = input("Enter command:\n")
@@ -154,7 +146,7 @@ class Interface:
 
 
 if __name__ == "__main__":  # dummy data
-    db = Interface("employees.db")
+    db = Interface("employees.db", True)
 
     db.add_object(Country(name="Poland"))
     db.add_object(Job(title="Manager", min_salary=1500, max_salary=2000))

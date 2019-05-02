@@ -7,7 +7,7 @@ class TestApp(unittest.TestCase):
 
     @classmethod  # runs once at start
     def setUpClass(cls):
-        cls.db = Interface(new_db=True, file_db="employees.db")
+        cls.db = Interface(new_db=True, file_db="test.db")
         cls.db.add_object(Country(name="Poland"))
         cls.db.add_object(Job(title="Manager", min_salary=1500, max_salary=2000))
         cls.db.add_object(Job(title="Driver", min_salary=1000, max_salary=1700))
@@ -45,4 +45,3 @@ class TestApp(unittest.TestCase):
         self.db2.add_object(Country(name="Poland"))
         country = self.db2.delete_object(Country, 1)
         self.assertEqual(country, None)
-
