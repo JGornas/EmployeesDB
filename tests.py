@@ -7,7 +7,7 @@ class TestApp(unittest.TestCase):
 
     @classmethod  # runs once at start
     def setUpClass(cls):
-        cls.db = Interface(memory_db=True)
+        cls.db = Interface(new_db=True, file_db="employees.db")
         cls.db.add_object(Country(name="Poland"))
         cls.db.add_object(Job(title="Manager", min_salary=1500, max_salary=2000))
         cls.db.add_object(Job(title="Driver", min_salary=1000, max_salary=1700))
@@ -21,13 +21,12 @@ class TestApp(unittest.TestCase):
                                    job_id=2, manager_id=1, salary=1500, department_id=2))
         cls.db.add_object(Department(name="Office", manager_id=1, location_id=1))
         cls.db.add_object(Department(name="Warehouse", manager_id=1, location_id=2))
-        cls.db.read_object(Country, 1)
-
+        cls.db.read_object(Country, {"id": 1})
 
     def test_read_by_id(self):
-        emp1 = self.db.read_object(Employee, 1)
-        emp2 = self.db.read_object(Employee, 2)
-        country1 = self.db.read_object(Country, 1)
+        emp1 = self.db.read_object(Employee, {"id": 1})
+        emp2 = self.db.read_object(Employee, {"id": 2})
+        country1 = self.db.read_object(Country, {"id": 1})
         self.assertEqual(type(emp1), str)
         self.assertEqual(emp1, "1. Jan. Nowak. jnowak@gmail.com. 60 825 23 38. Hire date: 12.12.12. "
                                "Job id: 1. Salary: 2000. Manager id: None. Department id: 1. ")
@@ -38,7 +37,7 @@ class TestApp(unittest.TestCase):
     def test_update_by_id(self):
         self.db.add_object(Country(name="Poland"))
         self.db.update_object(Country, 1, "name", "England")
-        country = self.db.read_object(Country, 1)
+        country = self.db.read_object(Country, {"id": 1})
         self.assertEqual(country, "1. England.")
 
     def test_delete_by_id(self):
@@ -46,3 +45,4 @@ class TestApp(unittest.TestCase):
         self.db2.add_object(Country(name="Poland"))
         country = self.db2.delete_object(Country, 1)
         self.assertEqual(country, None)
+

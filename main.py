@@ -7,9 +7,9 @@ import sys
 
 
 class Interface:
-    def __init__(self, file_db="", new_db=False, memory_db=False):
+    def __init__(self, file_db="", new_db=True, memory_db=False):
         if memory_db:
-            self.engine = create_engine("sqlite:///:memory:", echo=True)
+            self.engine = create_engine("sqlite:///:memory:", echo=False)
             print("SQLite::memory: database initiated.")
         else:
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
@@ -25,6 +25,7 @@ class Interface:
         except OperationalError:
             print("Tables loaded.")
         self.Session = sessionmaker(bind=self.engine)
+        self.dict = {"Country": ["name"], "Job": ["title", "min_salary", "max_salary"]}
 
     def add_object(self, table):
         session = self.Session()
@@ -38,9 +39,9 @@ class Interface:
             session.close()
         return query
 
-    def read_object(self, table, object_id):
+    def read_object(self, table, kwargs):
         session = self.Session()
-        query = session.query(table).filter_by(id=object_id).first()
+        query = session.query(table).filter_by(**kwargs).first()
         session.close()
         return str(query)
 
@@ -80,17 +81,52 @@ class Interface:
             "- exit - Exits the app.\n"
              )
 
-    def read(self, *args):
+    def get_attributes(self, table):
+        attributes = ["id"]
+        for key in self.dict[table]:
+            attributes.append(key)
+        return attributes
+
+    def read(self):
+        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
+                  "Department": Department, "JobHistory": JobHistory}
         table = input("Enter table name.\n")
-        object_id = input("Enter record id\n")
-        self.read_object(table=table, object_id=object_id)
+        attributes = self.get_attributes(table)
+        print(f"Available filters: {[a for a in attributes]}")
+        switch = input("Filter by? (only id works so far)\n")
+        if switch is "name":
+            object_name = input("Enter record name:\n")
+            query = self.read_object(table=models[table], object_id=object_name)
+        else:
+            object_id = input("Enter id:\n")
+            query = self.read_object(table=models[table], object_id=object_id)
+        print(query)
+        return query
 
     def add(self):
         table = input("Enter table name.\n")
         user_input = input("Enter record data\n")
-        models = {"Country": Country}
+        models = {"Country": Country, "Employee": Employee}
         func = models[table]
         self.add_object(func(user_input))
+
+    def read2(self):
+        print("List of tables:")
+        table = input("Enter table name:\n")
+        attributes = self.get_attributes(table)
+        print(f"Available filters: {[a for a in attributes]}")
+        data = input("Enter data: FILTER_TYPE FILTER, eg. 'id 1', 'name Poland'\n")
+        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
+                  "Department": Department, "JobHistory": JobHistory}
+        try:
+            filter_type, filter_ = data.split(" ")
+            table = models[table]
+            query_kwargs = {filter_type: filter_}
+            query = self.read_object(table, query_kwargs)
+            print(query)
+            return query
+        except ValueError:
+            print("Invalid data format!")
 
     def update(self):
         table = input("Enter table name.\n")
@@ -106,9 +142,9 @@ class Interface:
         sys.exit(0)
 
     def ui(self):
-        print("Enter 'help' for commands list.")
+        print("Enter 'help' for a list of commands.")
         functions = {"help": self.help, "exit": self.exit,
-                     "add": self.add, "read": self.read, "update": self.update, "delete": self.delete}
+                     "add": self.add, "read": self.read, "read2": self.read2, "update": self.update, "delete": self.delete}
         while True:
             try:
                 user_data = input("Enter command:\n")
