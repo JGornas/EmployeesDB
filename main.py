@@ -7,14 +7,14 @@ import sys
 
 
 class Interface:
-    def __init__(self, file_db="", new_db=True, memory_db=False):
+    def __init__(self, file_db="", new_db=False, memory_db=False):
         if new_db:
             try:
                 os.remove(f"{file_db}")
             except FileNotFoundError:
                 print("Db file not found.")
         if memory_db:
-            self.engine = create_engine("sqlite:///:memory:", echo=False)
+            self.engine = create_engine("sqlite:///:memory:", echo=True)
             print("SQLite::memory: database initiated.")
         else:
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
@@ -27,14 +27,17 @@ class Interface:
         except OperationalError:
             print("Tables loaded.")
         self.Session = sessionmaker(bind=self.engine)
-        self.attributes = {"Country": ["name"], "Job": ["title"],
-                           "Employee": ["last_name", "email", "phone_number"],
-                           "Department": ["name"], "Location": ["Postal_code"]}
+        self.models = {"Employee": Employee, "Job": Job, "Location": Location, "Country": Country,
+                       "Department": Department, "JobHistory": JobHistory}
+        self.attributes = {"Employee": ["first_name", "last_name", "email", "phone_number",
+                                        "hire_date", "job_id", "salary", "manager_id", "department_id"],
+                           "Department": ["name"], "Location": ["country_name", "city", "street", "postal_code"],
+                           "Job": ["title", "min_salary", "max_salary"], "Country": ["name"]}
 
-    def add_object(self, table):
+    def add_object(self, table, kwargs):
         session = self.Session()
         try:
-            query = session.add(table)
+            query = session.add(table(**kwargs))
             session.commit()
         except:
             session.rollback()
@@ -52,7 +55,7 @@ class Interface:
             raise
         finally:
             session.close()
-            return str(query)
+        return str(query)
 
     def update_object(self, table, object_id, column, new_value):
         session = self.Session()
@@ -80,14 +83,17 @@ class Interface:
             session.close()
         return query2.first()
 
-    def help(self):
+    # UI elements below.
+
+    @staticmethod
+    def help():
         print(
-            "List of commands:\n"
-            "- add - Creates a record in table.\n"
-            "- read - Reads a record from table.\n"
-            "- update - Updates a record from table.\n"
-            "- delete - Deletes a record from table.\n"
-            "- exit - Exits the app.\n"
+              "List of commands:\n"
+              "- add - Creates a record in table.\n"
+              "- read - Reads a record from table.\n"
+              "- update - Updates a record from table.\n"
+              "- delete - Deletes a record from table.\n"
+              "- exit - Exits the app."
              )
 
     def get_attributes(self, table):
@@ -98,31 +104,36 @@ class Interface:
 
     def add(self):
         table = input("Enter table name.\n")
-        user_input = input("Enter record data\n")
-        models = {"Country": Country, "Employee": Employee}
-        func = models[table]
-        self.add_object(func(user_input))
+        attributes = self.get_attributes(table)
+        attributes = attributes[1:]
+        table_class = self.models[table]
+        print(f"Attributes required: {[a for a in attributes]}")
+        kwargs = {}
+        for attribute in attributes:
+            user_data = input(f"Enter {attribute}: ")
+            kwargs[attribute] = user_data
+
+        self.add_object(table_class, kwargs)
+        print(f"Record {kwargs} added to {table} table.")
 
     def read(self):
-        models = {"Country": Country, "Job": Job, "Employee": Employee, "Location": Location,
-                  "Department": Department, "JobHistory": JobHistory}
         print("List of tables:")
-        for table in models:
-            print(f"{table}", end=" "
-                  "\n")
-        table = input("Enter table name:\n")
+        for table in self.models:
+            print(f"{table}", end=" ")
+        table = input("\nEnter table name:\n")
         attributes = self.get_attributes(table)
         print(f"Available filters: {[a for a in attributes]}")
-        data = input("Enter data: FILTER_TYPE FILTER, eg. 'id 1', 'name Poland'\n")
+        data = input("Enter data: FILTER_TYPE FILTER, eg. 'id 1' or 'name Poland'\n")
         try:
             filter_type, filter_ = data.split(" ")
-            table = models[table]
+            table = self.models[table]
             query_kwargs = {filter_type: filter_}
             query = self.read_object(table, query_kwargs)
             print(query)
             return query
         except ValueError:
             print("Invalid data format!")
+        print("\n")
 
     def update(self):
         pass
@@ -130,7 +141,8 @@ class Interface:
     def delete(self):
         pass
 
-    def exit(self):
+    @staticmethod
+    def exit():
         sys.exit(0)
 
     def ui(self):
@@ -139,26 +151,12 @@ class Interface:
                      "add": self.add, "read": self.read, "update": self.update, "delete": self.delete}
         while True:
             try:
-                user_data = input("Enter command:\n")
+                user_data = input("\nEnter command:\n")
                 functions[user_data]()
             except NoInspectionAvailable:
                 print("No record found.")
 
 
-if __name__ == "__main__":  # dummy data
-    db = Interface("employees.db", True)
-
-    db.add_object(Country(name="Poland"))
-    db.add_object(Job(title="Manager", min_salary=1500, max_salary=2000))
-    db.add_object(Job(title="Driver", min_salary=1000, max_salary=1700))
-    db.add_object(Location(street="Wielka", postal_code="50-100", city="Lublin", country_name="Poland"))
-    db.add_object(Location(street="Angielska", postal_code="50-101", city="Lublin", country_name="Poland"))
-    db.add_object(Employee(first_name="Jan", last_name="Nowak", email="jnowak@gmail.com",
-                           phone_number="60 825 23 38", hire_date="12.12.12",
-                           job_id=1, salary=2000, department_id=1))
-    db.add_object(Employee(first_name="Andrzej", last_name="Lisiecki", email="lisek@gmail.com",
-                           phone_number="512 650 222", hire_date="13.12.12",
-                           job_id=2, manager_id= 1, salary=1500, department_id=2))
-    db.add_object(Department(name="Office", manager_id=1, location_id=1))
-    db.add_object(Department(name="Warehouse", manager_id=1, location_id=2))
+if __name__ == "__main__":  # UI
+    db = Interface(memory_db=True)
     db.ui()
