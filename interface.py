@@ -8,27 +8,30 @@ import sys
 
 class Interface:
     def __init__(self, file_db="", new_db=False, memory_db=False, echo=False):
-        if new_db:
+        if new_db:  # Forces new database file if true.
             try:
                 os.remove(f"{file_db}")
             except FileNotFoundError:
                 print("Db file not found.")
-        if memory_db:
+        if memory_db:  # Inits database in sqlite:memory.
             self.engine = create_engine("sqlite:///:memory:", echo=echo)
             print("SQLite::memory: database initiated.")
-        else:
+        else:  # Inits database in sqlite:database file.
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
             print(f"SQLite::{file_db}: database initiated.")
 
-        self.tables = [Job, Employee, Country, Location, Department, JobHistory]
-        try:
+        self.tables = [Job, Employee, Country, Location, Department, JobHistory]  # List of models.
+        try:  # Force new tables.
             for table in self.tables:
                 table.__table__.create(self.engine)
         except OperationalError:
             print("Tables loaded.")
         self.Session = sessionmaker(bind=self.engine)
+
+        # Maps user input to db models.
         self.models = {"Employee": Employee, "Job": Job, "Location": Location, "Country": Country,
                        "Department": Department, "JobHistory": JobHistory}
+        # All attributes of each table.
         self.attributes = {"Employee": ["first_name", "last_name", "email", "phone_number",
                                         "hire_date", "job_id", "salary", "manager_id", "department_id"],
                            "Department": ["name", "manager_id", "location_id"],
@@ -89,7 +92,7 @@ class Interface:
             session.close()
         return query2.first()
 
-    # UI elements from here.
+    # UI logic from here.
 
     @staticmethod
     def help():
@@ -156,8 +159,8 @@ class Interface:
         safe = input("Are you sure y/n?\n> ")
         try:
             if safe is "y":
-                self.update2(table, query_kwargs)
-                print(f"Record {query} {update_column} updated to '{update_value}'")
+                self.update_object(table, query_kwargs)
+                print(f"Record {query} {update_column} updated to '{update_value}'.")
             else:
                 print("Record not updated.")
         except InvalidRequestError:
@@ -197,6 +200,6 @@ class Interface:
                 print("Invalid command. Use 'help'.")
 
 
-if __name__ == "__main__":  # UI
+if __name__ == "__main__":
     db = Interface(memory_db=True, echo=False)
     db.ui()
