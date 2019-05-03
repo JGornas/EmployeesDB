@@ -45,14 +45,14 @@ class TestApp(unittest.TestCase):
                                "Job id: 1. Salary: 2000. Manager id: None. Department id: 1. ")
         self.assertEqual(emp2, "2. Andrzej. Lisiecki. lisek@gmail.com. 512 650 222. Hire date: 13.12.12. "
                                "Job id: 2. Salary: 1500. Manager id: 1. Department id: 2. ")
-        self.assertEqual(country1, "1. Poland.")
-        self.assertEqual(country2, "2. France.")
+        self.assertEqual(country1, "1. Poland")
+        self.assertEqual(country2, "2. France")
 
     def test_update_by_id(self):
         query_kwargs = {"id": "2", "update_column": "name", "update_value": "England"}
         self.db.update_object(Country, query_kwargs)
         country = self.db.read_object(Country, {"id": 2})
-        self.assertEqual(country, "2. England.")
+        self.assertEqual(country, "2. England")
 
     def test_delete_by_id(self):
         country = self.db.delete_object(Country, 3)
