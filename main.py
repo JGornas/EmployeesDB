@@ -1,20 +1,20 @@
 from sqlalchemy import create_engine
 from models import Job, Employee, Country, Location, Department, JobHistory
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import OperationalError, NoInspectionAvailable
+from sqlalchemy.exc import OperationalError, NoInspectionAvailable, InvalidRequestError
 import os
 import sys
 
 
 class Interface:
-    def __init__(self, file_db="", new_db=False, memory_db=False):
+    def __init__(self, file_db="", new_db=False, memory_db=False, echo=False):
         if new_db:
             try:
                 os.remove(f"{file_db}")
             except FileNotFoundError:
                 print("Db file not found.")
         if memory_db:
-            self.engine = create_engine("sqlite:///:memory:", echo=True)
+            self.engine = create_engine("sqlite:///:memory:", echo=echo)
             print("SQLite::memory: database initiated.")
         else:
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
@@ -31,8 +31,11 @@ class Interface:
                        "Department": Department, "JobHistory": JobHistory}
         self.attributes = {"Employee": ["first_name", "last_name", "email", "phone_number",
                                         "hire_date", "job_id", "salary", "manager_id", "department_id"],
-                           "Department": ["name"], "Location": ["country_name", "city", "street", "postal_code"],
-                           "Job": ["title", "min_salary", "max_salary"], "Country": ["name"]}
+                           "Department": ["name", "manager_id", "location_id"],
+                           "Location": ["country_name", "city", "street", "postal_code"],
+                           "Country": ["name"],
+                           "Job": ["title", "min_salary", "max_salary"],
+                           "JobHistory": ["employee_id", "start_date", "end_date", "department_id"]}
 
     def add_object(self, table, kwargs):
         session = self.Session()
@@ -57,10 +60,13 @@ class Interface:
             session.close()
         return str(query)
 
-    def update_object(self, table, object_id, column, new_value):
+    def update_object(self, table, kwargs):
         session = self.Session()
         try:
-            query = session.query(table).filter_by(id=object_id).update({f"{column}": new_value})
+            record_id = kwargs["id"]
+            update_column = kwargs["update_column"]
+            update_value = kwargs["update_value"]
+            query = session.query(table).filter_by(id=record_id).update({f"{update_column}": update_value})
             session.commit()
         except:
             session.rollback()
@@ -83,18 +89,22 @@ class Interface:
             session.close()
         return query2.first()
 
-    # UI elements below.
+    # UI elements from here.
 
     @staticmethod
     def help():
-        print(
-              "List of commands:\n"
-              "- add - Creates a record in table.\n"
-              "- read - Reads a record from table.\n"
-              "- update - Updates a record from table.\n"
-              "- delete - Deletes a record from table.\n"
-              "- exit - Exits the app."
-             )
+        print("List of commands:\n"
+              "- tables - Prints a list of tables.\n"
+              "- add - Creates a record in the table.\n"
+              "- read - Reads a record from the table.\n"
+              "- update - Updates a record from the table.\n"
+              "- delete - Deletes a record from the table.\n"
+              "- exit - Exits the application..")
+
+    def tables_list(self):
+        print("List of tables:")
+        for table in self.models:
+            print(f"- {table}", end=" ""\n")
 
     def get_attributes(self, table):
         attributes = ["id"]
@@ -103,27 +113,24 @@ class Interface:
         return attributes
 
     def add(self):
-        table = input("Enter table name.\n")
+        table = input("Enter table name.\n> ")
         attributes = self.get_attributes(table)
         attributes = attributes[1:]
         table_class = self.models[table]
-        print(f"Attributes required: {[a for a in attributes]}")
+        print(f"Required attributes: {[a for a in attributes]}")
         kwargs = {}
         for attribute in attributes:
-            user_data = input(f"Enter {attribute}: ")
+            user_data = input(f"Enter {attribute}: > ")
             kwargs[attribute] = user_data
 
         self.add_object(table_class, kwargs)
         print(f"Record {kwargs} added to {table} table.")
 
     def read(self):
-        print("List of tables:")
-        for table in self.models:
-            print(f"{table}", end=" ")
-        table = input("\nEnter table name:\n")
+        table = input("Enter table name:\n> ")
         attributes = self.get_attributes(table)
         print(f"Available filters: {[a for a in attributes]}")
-        data = input("Enter data: FILTER_TYPE FILTER, eg. 'id 1' or 'name Poland'\n")
+        data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland'\n> ")
         try:
             filter_type, filter_ = data.split(" ")
             table = self.models[table]
@@ -136,10 +143,41 @@ class Interface:
         print("\n")
 
     def update(self):
-        pass
+        table = input("Enter table name:\n> ")
+        attributes = self.get_attributes(table)
+        table = self.models[table]
+        record_id = input("Enter record id: > ")
+        query = self.read_object(table, {"id": record_id})
+        print(f"Record to update: '{query}'")
+        print(f"List of attributes: {[a for a in attributes[1:]]}")
+        update_column = input("Choose attribute to change: > ")
+        update_value = input("Enter new value: > ")
+        query_kwargs = {"id": record_id, "update_column": update_column, "update_value": update_value}
+        safe = input("Are you sure y/n?\n> ")
+        try:
+            if safe is "y":
+                self.update2(table, query_kwargs)
+                print(f"Record {query} {update_column} updated to '{update_value}'")
+            else:
+                print("Record not updated.")
+        except InvalidRequestError:
+            print("Invalid attribute.")
 
     def delete(self):
-        pass
+        table = input("Enter table name:\n> ")
+        table = self.models[table]
+        record_id = input("Enter record id: > ")
+        query = self.read_object(table, {"id": record_id})
+        print(f"Record to delete: '{query}'")
+        safe = input("Are you sure y/n?\n> ")
+        try:
+            if safe is "y":
+                self.delete_object(table, record_id)
+                print(f"Record {query} deleted successfully.")
+            else:
+                print("Record not deleted.")
+        except InvalidRequestError:
+            print("Invalid attribute.")
 
     @staticmethod
     def exit():
@@ -147,16 +185,18 @@ class Interface:
 
     def ui(self):
         print("Enter 'help' for a list of commands.")
-        functions = {"help": self.help, "exit": self.exit,
+        functions = {"help": self.help, "exit": self.exit, "tables": self.tables_list,
                      "add": self.add, "read": self.read, "update": self.update, "delete": self.delete}
         while True:
             try:
-                user_data = input("\nEnter command:\n")
+                user_data = input("\nEnter command:\n> ")
                 functions[user_data]()
             except NoInspectionAvailable:
                 print("No record found.")
+            except KeyError:
+                print("Invalid command. Use 'help'.")
 
 
 if __name__ == "__main__":  # UI
-    db = Interface(memory_db=True)
+    db = Interface(memory_db=True, echo=False)
     db.ui()

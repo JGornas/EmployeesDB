@@ -49,7 +49,8 @@ class TestApp(unittest.TestCase):
         self.assertEqual(country2, "2. France.")
 
     def test_update_by_id(self):
-        self.db.update_object(Country, 2, "name", "England")
+        query_kwargs = {"id": "2", "update_column": "name", "update_value": "England"}
+        self.db.update_object(Country, query_kwargs)
         country = self.db.read_object(Country, {"id": 2})
         self.assertEqual(country, "2. England.")
 
