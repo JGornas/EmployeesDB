@@ -1,5 +1,5 @@
 from models import Job, Employee, Country, Location, Department
-from main import Interface
+from interface import Interface
 
 
 def main():

@@ -1,5 +1,5 @@
 import unittest
-from main import Interface
+from interface import Interface
 from models import Job, Employee, Country, Location, Department, JobHistory
 
 
