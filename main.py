@@ -1,11 +1,13 @@
 from models import Job, Employee, Country, Location, Department
-from interface import Interface
+from ui import UserInterface
 
 
-def main(new_database=False):
+def main(filename="", new_database=False, echo=False):
     """Connects to database and insert dummy data."""
     if new_database:
-        db = Interface("employees.db", new_db=True)
+        db = UserInterface(filename, new_db=True, echo=echo)
+        print("Making new database file and inserting dummy data...")
+
         countries = [{"name": "Poland"},
                      {"name": "France"},
                      {"name": "Germany"}]
@@ -32,12 +34,12 @@ def main(new_database=False):
                        {"name": "Shop", "manager_id": "1", "location_id": 2}]
         [db.add_object(Department, department) for department in departments]
 
-        db.ui()  # starts UI loop.
+        db.ui_loop()
     else:
-        db = Interface("employees.db")
-        db.ui()
+        db = UserInterface("employees.db")
+        db.ui_loop()
 
 
 if __name__ == "__main__":
     """New_database is bool for fresh db file."""
-    main(new_database=False)
+    main(filename="employees.db", new_database=True)

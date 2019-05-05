@@ -13,7 +13,7 @@ class Job(Base):
     max_salary = Column(Integer)
 
     def __repr__(self):
-        return f"{self.id}. {self.title}. Min. Salary: {self.min_salary}. Max. Salary: {self.min_salary}."
+        return f"{self.id}. {self.title}. Min Salary: {self.min_salary}. Max Salary: {self.max_salary}."
 
 
 class Country(Base):
