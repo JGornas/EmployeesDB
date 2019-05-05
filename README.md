@@ -28,10 +28,11 @@ UserInterface parameters:
 - memory_db - If true, database initiates in memory.
 - echo - If true, prints SQL commands in the console.
 
-Start the UI with ui_loop().
-```bash
+Start the command line UI.
+```python
 db.ui_loop()
-
+```
+```bash
 SQLite::memory/file: database initiated.
 Enter 'help' for a list of commands.
 
