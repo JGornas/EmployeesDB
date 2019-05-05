@@ -14,7 +14,7 @@ class UserInterface(Interface):
               "- read all - Reads all records from the table.\n"
               "- update - Updates a record from the table.\n"
               "- delete - Deletes a record from the table.\n"
-              "- exit - Exits the application..")
+              "- exit - Exits the application.")
 
     def tables_list(self):
         print("List of tables:")
@@ -28,7 +28,7 @@ class UserInterface(Interface):
         return attributes
 
     def add(self):
-        table = input("Enter table name.\n> ")
+        table = input("Enter table name:\n> ")
         attributes = self.get_attributes(table)
         attributes = attributes[1:]
         table_class = self.models[table]
@@ -45,7 +45,7 @@ class UserInterface(Interface):
         table = input("Enter table name:\n> ")
         attributes = self.get_attributes(table)
         print(f"Available filters: {[a for a in attributes]}")
-        data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland'\n> ")
+        data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland':\n> ")
         try:
             filter_type, filter_ = data.split(" ")
             table = self.models[table]
