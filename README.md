@@ -5,7 +5,7 @@ Employees_DB is a command line application for the management of employees datab
 Uses:
 Python 3.6,
 SQLite database,
-SQLAlchemy
+SQLAlchemy.
 
 ## Installation
 
@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Open the UI with and initiate database with:
+Make an instance of UserInterface. It will connect to the choosen database on initialization.
 ```python
 from ui import UserInterface
 db = UserInterface(file_db="database.db")
