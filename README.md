@@ -27,6 +27,14 @@ UserInterface parameters:
 - echo - If true, prints SQL commands in the console.
 
 
+```bash
+SQLite::memory/file: database initiated.
+Enter 'help' for a list of commands.
+
+Enter command:
+> ...
+```
+
 List of commands:
 - tables - Prints a list of tables.
 - add - Creates a record in the table.
@@ -40,8 +48,7 @@ Adding record:
 ```bash
 Enter command:
 > add
-Enter table name.
-> Job
+Enter table name. > Job
 Required attributes: ['title', 'min_salary', 'max_salary']
 Enter title: > Accountant
 Enter min_salary: > 1200
@@ -53,8 +60,7 @@ Reading record; Use 'read all' for all records in a table.
 ```bash
 Enter command:
 > read
-Enter table name:
-> Job
+Enter table name: > Job
 Available filters: ['id', 'title', 'min_salary', 'max_salary']
 Enter filter type and filter value, eg. 'id 1' or 'name Poland'
 > name Accountant
@@ -65,15 +71,13 @@ Updating record:
 ```bash
 Enter command:
 > update
-Enter table name:
-> Job
+Enter table name: > Job
 Enter record id: > 3
 Record to update: '3. Accountant. Min Salary: 1500. Max Salary: 4000.'
 List of attributes: ['title', 'min_salary', 'max_salary']
 Choose attribute to change: > min_salary
 Enter new value: > 2000
-Are you sure y/n?
-> y
+Are you sure y/n? > y
 Record 3. Accountant. Min Salary: 1500. Max Salary: 4000. min_salary updated to '2000'.
 ```
 
@@ -81,16 +85,14 @@ Deleting record:
 ```bash
 Enter command:
 > delete
-Enter table name:
-> Job
+Enter table name: > Job
 Enter record id: > 3
 Record to delete: '3. Accountant. Min Salary: 2000. Max Salary: 4000.'
-Are you sure y/n?
-> y
+Are you sure y/n? > y
 Record 3. Accountant. Min Salary: 2000. Max Salary: 4000. deleted successfully.
 ```
 
-Interface class can be used for GUI.
+Interface class can further used for GUI.
 
 ## License
 

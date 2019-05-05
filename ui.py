@@ -27,7 +27,7 @@ class UserInterface(Interface):
         return attributes
 
     def add(self):
-        table = input("Enter table name:\n> ")
+        table = input("Enter table name: > ")
         attributes = self.get_attributes(table)
         attributes = attributes[1:]
         table_class = self.models[table]
@@ -41,7 +41,7 @@ class UserInterface(Interface):
         print(f"Record {kwargs} added to {table} table.")
 
     def read(self):
-        table = input("Enter table name:\n> ")
+        table = input("Enter table name: > ")
         attributes = self.get_attributes(table)
         print(f"Available filters: {attributes}")
         data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland':\n> ")
@@ -57,13 +57,13 @@ class UserInterface(Interface):
         print("\n")
 
     def read_table(self):
-        table = input("Enter table name:\n> ")
+        table = input("Enter table name: > ")
         table = self.models[table]
         for search in self.read_all(table):
             print(search)
 
     def update(self):
-        table = input("Enter table name:\n> ")
+        table = input("Enter table name: > ")
         attributes = self.get_attributes(table)
         table = self.models[table]
         record_id = input("Enter record id: > ")
@@ -73,7 +73,7 @@ class UserInterface(Interface):
         update_column = input("Choose attribute to change: > ")
         update_value = input("Enter new value: > ")
         query_kwargs = {"id": record_id, "update_column": update_column, "update_value": update_value}
-        safe = input("Are you sure y/n?\n> ")
+        safe = input("Are you sure y/n? > ")
         try:
             if safe is "y":
                 self.update_object(table, query_kwargs)
@@ -84,12 +84,12 @@ class UserInterface(Interface):
             print("Invalid attribute.")
 
     def delete(self):
-        table = input("Enter table name:\n> ")
+        table = input("Enter table name: > ")
         table = self.models[table]
         record_id = input("Enter record id: > ")
         query = self.read_object(table, {"id": record_id})
         print(f"Record to delete: '{query}'")
-        safe = input("Are you sure y/n?\n> ")
+        safe = input("Are you sure y/n? > ")
         try:
             if safe is "y":
                 self.delete_object(table, record_id)
