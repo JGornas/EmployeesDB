@@ -1,6 +1,7 @@
 # Employees_DB
 
-Employees_DB is a command line database app that works with SQLite database using Python 3.6+ and SQLAlchemy.
+Employees_DB is a command line app for employees database management. 
+It works with SQLite database using Python 3.6+ and SQLAlchemy.
 
 ## Installation
 
@@ -28,18 +29,99 @@ List of commands:
 - delete - Deletes a record from the table.
 - exit - Exits the application.
 
+Adding record:
 ```bash
 Enter command:
 > add
 Enter table name.
 > Job
 Required attributes: ['title', 'min_salary', 'max_salary']
-Enter title: > manager
-Enter min_salary: > 1000
-Enter max_salary: > 1500
-Record {'title': 'manager', 'min_salary': '1000', 'max_salary': '1500'} added to Job table.
+Enter title: > Accountant
+Enter min_salary: > 1200
+Enter max_salary: > 4000
+Record {'title': 'Accountant', 'min_salary': '1200', 'max_salary': '4000'} added to Job table.
 ```
+
+Reading record:
+```bash
+Enter command:
+> read
+Enter table name:
+> Job
+Available filters: ['id', 'title', 'min_salary', 'max_salary']
+Enter filter type and filter value, eg. 'id 1' or 'name Poland'
+> id 3
+3. Accountant. Min Salary: 1500. Max Salary: 4000.
+```
+
+Reading record; Use 'read all' for all records in a table.
+```bash
+Enter command:
+> read
+Enter table name:
+> Job
+Available filters: ['id', 'title', 'min_salary', 'max_salary']
+Enter filter type and filter value, eg. 'id 1' or 'name Poland'
+> name Accountant
+3. Accountant. Min Salary: 1500. Max Salary: 4000.
+```
+
+Updating record:
+```bash
+Enter command:
+> update
+Enter table name:
+> Job
+Enter record id: > 3
+Record to update: '3. Accountant. Min Salary: 1500. Max Salary: 4000.'
+List of attributes: ['title', 'min_salary', 'max_salary']
+Choose attribute to change: > min_salary
+Enter new value: > 2000
+Are you sure y/n?
+> y
+Record 3. Accountant. Min Salary: 1500. Max Salary: 4000. min_salary updated to '2000'.
+```
+
+Deleting record:
+```bash
+Enter command:
+> delete
+Enter table name:
+> Job
+Enter record id: > 3
+Record to delete: '3. Accountant. Min Salary: 2000. Max Salary: 4000.'
+Are you sure y/n?
+> y
+Record 3. Accountant. Min Salary: 2000. Max Salary: 4000. deleted successfully.
+```
+
+Interface class can be used for GUI.
 
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
