@@ -4,7 +4,6 @@ from sqlalchemy.exc import NoInspectionAvailable, InvalidRequestError
 
 
 class UserInterface(Interface):
-
     @staticmethod
     def help():
         print("List of commands:\n"
@@ -32,7 +31,7 @@ class UserInterface(Interface):
         attributes = self.get_attributes(table)
         attributes = attributes[1:]
         table_class = self.models[table]
-        print(f"Required attributes: {[a for a in attributes]}")
+        print(f"Required attributes: {attributes}")
         kwargs = {}
         for attribute in attributes:
             user_data = input(f"Enter {attribute}: > ")
@@ -44,7 +43,7 @@ class UserInterface(Interface):
     def read(self):
         table = input("Enter table name:\n> ")
         attributes = self.get_attributes(table)
-        print(f"Available filters: {[a for a in attributes]}")
+        print(f"Available filters: {attributes}")
         data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland':\n> ")
         try:
             filter_type, filter_ = data.split(" ")
@@ -70,7 +69,7 @@ class UserInterface(Interface):
         record_id = input("Enter record id: > ")
         query = self.read_object(table, {"id": record_id})
         print(f"Record to update: '{query}'")
-        print(f"List of attributes: {[a for a in attributes[1:]]}")
+        print(f"List of attributes: {attributes[1:]}")
         update_column = input("Choose attribute to change: > ")
         update_value = input("Enter new value: > ")
         query_kwargs = {"id": record_id, "update_column": update_column, "update_value": update_value}
@@ -120,5 +119,5 @@ class UserInterface(Interface):
 
 
 if __name__ == "__main__":
-    ui = UserInterface(memory_db=True, echo=True)
+    ui = UserInterface(memory_db=True, echo=False)
     ui.ui_loop()

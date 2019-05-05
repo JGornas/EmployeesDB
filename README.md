@@ -1,7 +1,8 @@
 # Employees_DB
 
 Employees_DB is a command line app for employees database management. 
-It works with SQLite database using Python 3.6+ and SQLAlchemy.
+
+SQLite database, Python 3.6 and SQLAlchemy.
 
 ## Installation
 
@@ -13,13 +14,19 @@ pip install -r requirements.txt
 
 ## Usage
 
-Main class Interface in interface.py. It can be used with python shell or in-build command line.
-Initiate db with:
+Open the UI with and initiate database with:
 ```python
 from ui import UserInterface
 db = UserInterface("database.db")
 db.ui_loop()
 ```
+UserInterface parameters:
+- file_db - Direct path to the database file, eg. "database.db".
+- new_db - If true, removes previous db file linked to file_db.
+- memory_db - If true, database initiates in memory.
+- echo - If true, prints SQL commands in the console.
+
+
 List of commands:
 - tables - Prints a list of tables.
 - add - Creates a record in the table.
@@ -40,18 +47,6 @@ Enter title: > Accountant
 Enter min_salary: > 1200
 Enter max_salary: > 4000
 Record {'title': 'Accountant', 'min_salary': '1200', 'max_salary': '4000'} added to Job table.
-```
-
-Reading record:
-```bash
-Enter command:
-> read
-Enter table name:
-> Job
-Available filters: ['id', 'title', 'min_salary', 'max_salary']
-Enter filter type and filter value, eg. 'id 1' or 'name Poland'
-> id 3
-3. Accountant. Min Salary: 1500. Max Salary: 4000.
 ```
 
 Reading record; Use 'read all' for all records in a table.
