@@ -1,8 +1,11 @@
 # Employees_DB
 
-Employees_DB is a command line app for employees database management. 
+Employees_DB is a command line application for the management of employees database. 
 
-SQLite database, Python 3.6 and SQLAlchemy.
+Uses:
+Python 3.6,
+SQLite database,
+SQLAlchemy
 
 ## Installation
 
@@ -17,8 +20,7 @@ pip install -r requirements.txt
 Open the UI with and initiate database with:
 ```python
 from ui import UserInterface
-db = UserInterface("database.db")
-db.ui_loop()
+db = UserInterface(file_db="database.db")
 ```
 UserInterface parameters:
 - file_db - Direct path to the database file, eg. "database.db".
@@ -26,8 +28,10 @@ UserInterface parameters:
 - memory_db - If true, database initiates in memory.
 - echo - If true, prints SQL commands in the console.
 
-
+Start the UI with ui_loop().
 ```bash
+db.ui_loop()
+
 SQLite::memory/file: database initiated.
 Enter 'help' for a list of commands.
 

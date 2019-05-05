@@ -26,8 +26,13 @@ class UserInterface(Interface):
             attributes.append(key)
         return attributes
 
-    def add(self):
+    @staticmethod
+    def get_table():
         table = input("Enter table name: > ")
+        return table.lower().capitalize()
+
+    def add(self):
+        table = self.get_table()
         attributes = self.get_attributes(table)
         attributes = attributes[1:]
         table_class = self.models[table]
@@ -41,7 +46,7 @@ class UserInterface(Interface):
         print(f"Record {kwargs} added to {table} table.")
 
     def read(self):
-        table = input("Enter table name: > ")
+        table = self.get_table()
         attributes = self.get_attributes(table)
         print(f"Available filters: {attributes}")
         data = input("Enter filter type and filter value, eg. 'id 1' or 'name Poland':\n> ")
@@ -57,13 +62,13 @@ class UserInterface(Interface):
         print("\n")
 
     def read_table(self):
-        table = input("Enter table name: > ")
+        table = self.get_table()
         table = self.models[table]
         for search in self.read_all(table):
             print(search)
 
     def update(self):
-        table = input("Enter table name: > ")
+        table = self.get_table()
         attributes = self.get_attributes(table)
         table = self.models[table]
         record_id = input("Enter record id: > ")
@@ -84,7 +89,7 @@ class UserInterface(Interface):
             print("Invalid attribute.")
 
     def delete(self):
-        table = input("Enter table name: > ")
+        table = self.get_table()
         table = self.models[table]
         record_id = input("Enter record id: > ")
         query = self.read_object(table, {"id": record_id})

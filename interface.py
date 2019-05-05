@@ -19,7 +19,7 @@ class Interface:
             self.engine = create_engine(f"sqlite:///{file_db}", echo=False)
             print(f"SQLite::{file_db}: database initiated.")
 
-        self.tables = [Job, Employee, Country, Location, Department, JobHistory]  # List of models.
+        self.tables = [Job, Employee, Country, Location, Department, JobHistory]
         try:  # Force new tables.
             for table in self.tables:
                 table.__table__.create(self.engine)
@@ -92,7 +92,7 @@ class Interface:
         session = self.Session()
         try:
             query = session.query(table).filter_by(id=object_id)
-            query2 = query
+            query2 = query  # query after .delete returns None.
             query.delete()
             session.commit()
         except:

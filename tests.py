@@ -1,6 +1,6 @@
 import unittest
 from interface import Interface
-from models import Job, Employee, Country, Location, Department, JobHistory
+from models import Job, Employee, Country, Location, Department
 
 
 class TestApp(unittest.TestCase):
