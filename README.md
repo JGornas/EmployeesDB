@@ -1,6 +1,6 @@
-# Employees_DB
+# EmployeesDB
 
-Employees_DB is a command line application for the management of employees database. 
+EmployeesDB is a command line application for the management of employees database. 
 
 Uses:
 Python 3.6,
